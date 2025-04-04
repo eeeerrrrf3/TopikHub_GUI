@@ -4,9 +4,63 @@ local tween = game:GetService("TweenService")
 local tweeninfo = TweenInfo.new
 local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
+local players = game:GetService("Players")
+local plr = players.LocalPlayer
 
 local Utility = {}
 local Objects = {}
+
+-- Функция для создания логотипа
+local function createLogo()
+    local logo = Instance.new("ImageLabel")
+    logo.Name = "KavoLogo"
+    logo.Image = "http://www.roblox.com/asset/?id=10556918769"
+    logo.BackgroundTransparency = 1
+    logo.Size = UDim2.new(0, 300, 0, 300)
+    logo.Position = UDim2.new(0.5, -150, 0.5, -150)
+    logo.AnchorPoint = Vector2.new(0.5, 0.5)
+    logo.ZIndex = 9999
+    
+    -- Добавляем в CoreGui
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "LogoGui"
+    screenGui.Parent = game:GetService("CoreGui")
+    screenGui.ResetOnSpawn = false
+    logo.Parent = screenGui
+    
+    return logo, screenGui
+end
+
+-- Функция для показа/скрытия логотипа с анимацией
+local function showLogo(callback)
+    local logo, screenGui = createLogo()
+    
+    -- Начальное состояние (прозрачное)
+    logo.ImageTransparency = 1
+    
+    -- Анимация появления
+    local showTween = tween:Create(logo, tweeninfo(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        ImageTransparency = 0
+    })
+    
+    -- Анимация исчезновения
+    local hideTween = tween:Create(logo, tweeninfo(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        ImageTransparency = 1
+    })
+    
+    -- Запускаем анимации
+    showTween:Play()
+    
+    -- Ждем 3 секунды, затем скрываем
+    wait(3)
+    
+    hideTween:Play()
+    hideTween.Completed:Connect(function()
+        screenGui:Destroy()
+        if callback then callback() end
+    end)
+end
+
 function Kavo:DraggingEnabled(frame, parent)
         
     parent = parent or frame
