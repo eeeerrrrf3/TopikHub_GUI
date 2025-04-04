@@ -1,6 +1,4 @@
-Certainly! Below is the complete code for your `Kavo` library, including the missing parts for creating the main interface after showing the logo. I've filled in the necessary sections to ensure the library functions as intended.
 
-```lua
 local Kavo = {}
 
 local tween = game:GetService("TweenService")
