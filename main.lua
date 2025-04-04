@@ -4,11 +4,12 @@ local tween = game:GetService("TweenService")
 local tweeninfo = TweenInfo.new
 local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
+local ts = game:GetService("TextService")
 
 local Utility = {}
 local Objects = {}
 
--- Функция для анимации логотипа при открытии
+-- Улучшенная функция анимации логотипа
 local function ShowLogoAnimation(parent)
     local logo = Instance.new("ImageLabel")
     logo.Name = "LogoAnimation"
@@ -19,60 +20,57 @@ local function ShowLogoAnimation(parent)
     logo.ZIndex = 100
     logo.Parent = parent
     
-    -- Начальное состояние - полностью прозрачный
-    logo.ImageTransparency = 1
-    
     -- Анимация появления
-    local fadeIn = tween:Create(logo, tweeninfo(0.7, Enum.EasingStyle.Quint), {
+    logo.ImageTransparency = 1
+    tween:Create(logo, tweeninfo(0.7, Enum.EasingStyle.Quint), {
         ImageTransparency = 0
-    })
-    fadeIn:Play()
+    }):Play()
     
-    -- Анимация пульсации
-    local pulseIn = tween:Create(logo, tweeninfo(0.8, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut), {
-        Size = UDim2.new(0, 170, 0, 170),
-        Position = UDim2.new(0.5, -85, 0.5, -85),
-        Rotation = 5
-    })
-    
-    local pulseOut = tween:Create(logo, tweeninfo(0.8, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut), {
-        Size = UDim2.new(0, 150, 0, 150),
-        Position = UDim2.new(0.5, -75, 0.5, -75),
-        Rotation = 0
-    })
-    
-    -- Цикл пульсации
-    local function startPulse()
+    -- Функция пульсации
+    local function pulseAnimation()
+        local pulseIn = tween:Create(logo, tweeninfo(0.8, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut), {
+            Size = UDim2.new(0, 170, 0, 170),
+            Position = UDim2.new(0.5, -85, 0.5, -85),
+            Rotation = 5
+        })
+        
+        local pulseOut = tween:Create(logo, tweeninfo(0.8, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut), {
+            Size = UDim2.new(0, 150, 0, 150),
+            Position = UDim2.new(0.5, -75, 0.5, -75),
+            Rotation = 0
+        })
+        
         pulseIn:Play()
-        pulseIn.Completed:Connect(function()
-            pulseOut:Play()
-            pulseOut.Completed:Connect(function()
-                startPulse()
-            end)
-        end)
+        pulseIn.Completed:Wait()
+        pulseOut:Play()
+        return pulseOut.Completed
     end
+
+    -- Запуск анимации в отдельном потоке
+    task.spawn(function()
+        while logo.Parent do
+            pulseAnimation():Wait()
+        end
+    end)
     
-    startPulse()
-    
-    -- Задержка перед исчезновением
-    wait(2.5)
-    
-    -- Анимация исчезновения с уменьшением
-    local fadeOut = tween:Create(logo, tweeninfo(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
-        ImageTransparency = 1,
-        Size = UDim2.new(0, 50, 0, 50),
-        Position = UDim2.new(0.5, -25, 0.5, -25)
-    })
-    fadeOut:Play()
-    fadeOut.Completed:Connect(function()
-        logo:Destroy()
+    -- Автоматическое удаление через 2.5 секунды
+    delay(2.5, function()
+        if logo.Parent then
+            local fadeOut = tween:Create(logo, tweeninfo(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+                ImageTransparency = 1,
+                Size = UDim2.new(0, 50, 0, 50),
+                Position = UDim2.new(0.5, -25, 0.5, -25)
+            })
+            fadeOut:Play()
+            fadeOut.Completed:Wait()
+            logo:Destroy()
+        end
     end)
 end
 
 function Kavo:DraggingEnabled(frame, parent)
     parent = parent or frame
     
-    -- Тут начинается приступ говнокода 5 степени :)
     local dragging = false
     local dragInput, mousePos, framePos
 
@@ -108,7 +106,7 @@ function Utility:TweenObject(obj, properties, duration, ...)
     tween:Create(obj, tweeninfo(duration, ...), properties):Play()
 end
 
--- Я не парился с цветами, просто если вам лень делать свою тему, то можете взять готовую
+-- Темы оформления
 local themes = {
     SchemeColor = Color3.fromRGB(74, 99, 135),
     Background = Color3.fromRGB(36, 37, 43),
@@ -176,17 +174,12 @@ local themeStyles = {
     }
 }
 
-local oldTheme = ""
-
-local SettingsT = {}
-
 local Name = "KavoConfig.JSON"
 
 pcall(function()
     if not pcall(function() readfile(Name) end) then
-        writefile(Name, game:service'HttpService':JSONEncode(SettingsT))
+        writefile(Name, game:GetService('HttpService'):JSONEncode({}))
     end
-    Settings = game:service'HttpService':JSONEncode(readfile(Name))
 end)
 
 local LibName = tostring(math.random(1, 100))..tostring(math.random(1,50))..tostring(math.random(1, 100))
@@ -202,41 +195,17 @@ end
 function Kavo.CreateLib(kavName, themeList)
     if not themeList then
         themeList = themes
-    end
-    if themeList == "RJTheme1" then
-        themeList = themeStyles.RJTheme1
-    elseif themeList == "RJTheme2" then
-        themeList = themeStyles.RJTheme2
-    elseif themeList == "RJTheme3" then
-        themeList = themeStyles.RJTheme3
-    elseif themeList == "RJTheme4" then
-        themeList = themeStyles.RJTheme4
-    elseif themeList == "RJTheme5" then
-        themeList = themeStyles.RJTheme5
-    elseif themeList == "RJTheme6" then
-        themeList = themeStyles.RJTheme6
-    elseif themeList == "RJTheme7" then
-        themeList = themeStyles.RJTheme7
-    elseif themeList == "RJTheme8" then
-        themeList = themeStyles.RJTheme8
     else
-        if themeList.SchemeColor == nil then
-            themeList.SchemeColor = Color3.fromRGB(74, 99, 135)
-        elseif themeList.Background == nil then
-            themeList.Background = Color3.fromRGB(36, 37, 43)
-        elseif themeList.Header == nil then
-            themeList.Header = Color3.fromRGB(28, 29, 34)
-        elseif themeList.TextColor == nil then
-            themeList.TextColor = Color3.fromRGB(255,255,255)
-        elseif themeList.ElementColor == nil then
-            themeList.ElementColor = Color3.fromRGB(32, 32, 38)
+        if type(themeList) == "string" then
+            themeList = themeStyles[themeList] or themes
         end
     end
 
     themeList = themeList or {}
     local selectedTab 
     kavName = kavName or "Library"
-    table.insert(Kavo, kavName)
+    
+    -- Удаляем старый GUI если существует
     for i,v in pairs(game.CoreGui:GetChildren()) do
         if v:IsA("ScreenGui") and v.Name == kavName then
             v:Destroy()
@@ -259,7 +228,7 @@ function Kavo.CreateLib(kavName, themeList)
     local Main = Instance.new("Frame")
     Main.Name = "Main"
     Main.Parent = ScreenGui
-    Main.BackgroundColor3 = themeList.Background
+    Main.BackgroundColor3 = themeList.Background or themes.Background
     Main.ClipsDescendants = true
     Main.Position = UDim2.new(0.336503863, 0, 0.275485456, 0)
     Main.Size = UDim2.new(0, 525, 0, 318)
@@ -280,8 +249,7 @@ function Kavo.CreateLib(kavName, themeList)
     local MainHeader = Instance.new("Frame")
     MainHeader.Name = "MainHeader"
     MainHeader.Parent = Main
-    MainHeader.BackgroundColor3 = themeList.Header
-    Objects[MainHeader] = "BackgroundColor3"
+    MainHeader.BackgroundColor3 = themeList.Header or themes.Header
     MainHeader.Size = UDim2.new(0, 525, 0, 29)
     
     local headerCover = Instance.new("UICorner")
@@ -292,8 +260,7 @@ function Kavo.CreateLib(kavName, themeList)
     local coverup = Instance.new("Frame")
     coverup.Name = "coverup"
     coverup.Parent = MainHeader
-    coverup.BackgroundColor3 = themeList.Header
-    Objects[coverup] = "BackgroundColor3"
+    coverup.BackgroundColor3 = themeList.Header or themes.Header
     coverup.BorderSizePixel = 0
     coverup.Position = UDim2.new(0, 0, 0.758620679, 0)
     coverup.Size = UDim2.new(0, 525, 0, 7)
@@ -309,7 +276,7 @@ function Kavo.CreateLib(kavName, themeList)
     title.Font = Enum.Font.Gotham
     title.RichText = true
     title.Text = kavName
-    title.TextColor3 = Color3.fromRGB(245, 245, 245)
+    title.TextColor3 = themeList.TextColor or themes.TextColor
     title.TextSize = 16.000
     title.TextXAlignment = Enum.TextXAlignment.Left
 
@@ -323,24 +290,11 @@ function Kavo.CreateLib(kavName, themeList)
     close.Image = "rbxassetid://3926305904"
     close.ImageRectOffset = Vector2.new(284, 4)
     close.ImageRectSize = Vector2.new(24, 24)
-    close.MouseButton1Click:Connect(function()
-        game.TweenService:Create(close, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-            ImageTransparency = 1
-        }):Play()
-        wait()
-        game.TweenService:Create(Main, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0,0,0,0),
-            Position = UDim2.new(0, Main.AbsolutePosition.X + (Main.AbsoluteSize.X / 2), 0, Main.AbsolutePosition.Y + (Main.AbsoluteSize.Y / 2))
-        }):Play()
-        wait(1)
-        ScreenGui:Destroy()
-    end)
-
+    
     local MainSide = Instance.new("Frame")
     MainSide.Name = "MainSide"
     MainSide.Parent = Main
-    MainSide.BackgroundColor3 = themeList.Header
-    Objects[MainSide] = "Header"
+    MainSide.BackgroundColor3 = themeList.Header or themes.Header
     MainSide.Position = UDim2.new(-7.4505806e-09, 0, 0.0911949649, 0)
     MainSide.Size = UDim2.new(0, 149, 0, 289)
 
@@ -352,8 +306,7 @@ function Kavo.CreateLib(kavName, themeList)
     local coverup_2 = Instance.new("Frame")
     coverup_2.Name = "coverup"
     coverup_2.Parent = MainSide
-    coverup_2.BackgroundColor3 = themeList.Header
-    Objects[coverup_2] = "Header"
+    coverup_2.BackgroundColor3 = themeList.Header or themes.Header
     coverup_2.BorderSizePixel = 0
     coverup_2.Position = UDim2.new(0.949939311, 0, 0, 0)
     coverup_2.Size = UDim2.new(0, 7, 0, 289)
@@ -404,35 +357,58 @@ function Kavo.CreateLib(kavName, themeList)
     blurFrame.Size = UDim2.new(0, 376, 0, 289)
     blurFrame.ZIndex = 999
 
-    coroutine.wrap(function()
-        while wait() do
-            Main.BackgroundColor3 = themeList.Background
-            MainHeader.BackgroundColor3 = themeList.Header
-            MainSide.BackgroundColor3 = themeList.Header
-            coverup_2.BackgroundColor3 = themeList.Header
-            coverup.BackgroundColor3 = themeList.Header
+    -- Функция для обновления цветов
+    local function setupColorUpdates()
+        local connections = {}
+        
+        local function updateColors()
+            Main.BackgroundColor3 = themeList.Background or themes.Background
+            MainHeader.BackgroundColor3 = themeList.Header or themes.Header
+            MainSide.BackgroundColor3 = themeList.Header or themes.Header
+            coverup_2.BackgroundColor3 = themeList.Header or themes.Header
+            coverup.BackgroundColor3 = themeList.Header or themes.Header
+            title.TextColor3 = themeList.TextColor or themes.TextColor
         end
-    end)()
-
-    function Kavo:ChangeColor(prope,color)
-        if prope == "Background" then
-            themeList.Background = color
-        elseif prope == "SchemeColor" then
-            themeList.SchemeColor = color
-        elseif prope == "Header" then
-            themeList.Header = color
-        elseif prope == "TextColor" then
-            themeList.TextColor = color
-        elseif prope == "ElementColor" then
-            themeList.ElementColor = color
+        
+        -- Обновляем цвета сразу при создании
+        updateColors()
+        
+        -- Создаем соединение для отслеживания изменений темы
+        if themeList.Changed then
+            table.insert(connections, themeList.Changed:Connect(updateColors))
         end
+        
+        return connections
     end
-    
+
+    local colorConnections = setupColorUpdates()
+
+    -- Обработчик закрытия
+    close.MouseButton1Click:Connect(function()
+        for _, conn in ipairs(colorConnections) do
+            conn:Disconnect()
+        end
+        
+        game.TweenService:Create(close, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+            ImageTransparency = 1
+        }):Play()
+        
+        game.TweenService:Create(Main, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0,0,0,0),
+            Position = UDim2.new(0, Main.AbsolutePosition.X + (Main.AbsoluteSize.X / 2), 0, Main.AbsolutePosition.Y + (Main.AbsoluteSize.Y / 2))
+        }):Play()
+        
+        wait(1)
+        ScreenGui:Destroy()
+    end)
+
+    -- Функция для создания вкладок
     local Tabs = {}
     local first = true
 
     function Tabs:NewTab(tabName)
         tabName = tabName or "Tab"
+        
         local tabButton = Instance.new("TextButton")
         local UICorner = Instance.new("UICorner")
         local page = Instance.new("ScrollingFrame")
@@ -448,13 +424,17 @@ function Kavo.CreateLib(kavName, themeList)
         page.Name = "Page"
         page.Parent = Pages
         page.Active = true
-        page.BackgroundColor3 = themeList.Background
+        page.BackgroundColor3 = themeList.Background or themes.Background
         page.BorderSizePixel = 0
         page.Position = UDim2.new(0, 0, -0.00371747208, 0)
         page.Size = UDim2.new(1, 0, 1, 0)
         page.ScrollBarThickness = 5
         page.Visible = false
-        page.ScrollBarImageColor3 = Color3.fromRGB(themeList.SchemeColor.r * 255 - 16, themeList.SchemeColor.g * 255 - 15, themeList.SchemeColor.b * 255 - 28)
+        page.ScrollBarImageColor3 = Color3.fromRGB(
+            (themeList.SchemeColor or themes.SchemeColor).R * 255 - 16,
+            (themeList.SchemeColor or themes.SchemeColor).G * 255 - 15,
+            (themeList.SchemeColor or themes.SchemeColor).B * 255 - 28
+        )
 
         pageListing.Name = "pageListing"
         pageListing.Parent = page
@@ -463,14 +443,12 @@ function Kavo.CreateLib(kavName, themeList)
 
         tabButton.Name = tabName.."TabButton"
         tabButton.Parent = tabFrames
-        tabButton.BackgroundColor3 = themeList.SchemeColor
-        Objects[tabButton] = "SchemeColor"
+        tabButton.BackgroundColor3 = themeList.SchemeColor or themes.SchemeColor
         tabButton.Size = UDim2.new(0, 135, 0, 28)
         tabButton.AutoButtonColor = false
         tabButton.Font = Enum.Font.Gotham
         tabButton.Text = tabName
-        tabButton.TextColor3 = themeList.TextColor
-        Objects[tabButton] = "TextColor3"
+        tabButton.TextColor3 = themeList.TextColor or themes.TextColor
         tabButton.TextSize = 14.000
         tabButton.BackgroundTransparency = 1
 
@@ -486,7 +464,6 @@ function Kavo.CreateLib(kavName, themeList)
 
         UICorner.CornerRadius = UDim.new(0, 5)
         UICorner.Parent = tabButton
-        table.insert(Tabs, tabName)
 
         UpdateSize()
         page.ChildAdded:Connect(UpdateSize)
@@ -498,44 +475,22 @@ function Kavo.CreateLib(kavName, themeList)
                 v.Visible = false
             end
             page.Visible = true
+            
             for i,v in next, tabFrames:GetChildren() do
                 if v:IsA("TextButton") then
-                    if themeList.SchemeColor == Color3.fromRGB(255,255,255) then
-                        Utility:TweenObject(v, {TextColor3 = Color3.fromRGB(255,255,255)}, 0.2)
-                    end 
-                    if themeList.SchemeColor == Color3.fromRGB(0,0,0) then
-                        Utility:TweenObject(v, {TextColor3 = Color3.fromRGB(0,0,0)}, 0.2)
-                    end 
                     Utility:TweenObject(v, {BackgroundTransparency = 1}, 0.2)
                 end
             end
-            if themeList.SchemeColor == Color3.fromRGB(255,255,255) then
-                Utility:TweenObject(tabButton, {TextColor3 = Color3.fromRGB(0,0,0)}, 0.2)
-            end 
-            if themeList.SchemeColor == Color3.fromRGB(0,0,0) then
-                Utility:TweenObject(tabButton, {TextColor3 = Color3.fromRGB(255,255,255)}, 0.2)
-            end 
+            
             Utility:TweenObject(tabButton, {BackgroundTransparency = 0}, 0.2)
         end)
         
         local Sections = {}
-        local focusing = false
-        local viewDe = false
-
-        coroutine.wrap(function()
-            while wait() do
-                page.BackgroundColor3 = themeList.Background
-                page.ScrollBarImageColor3 = Color3.fromRGB(themeList.SchemeColor.r * 255 - 16, themeList.SchemeColor.g * 255 - 15, themeList.SchemeColor.b * 255 - 28)
-                tabButton.TextColor3 = themeList.TextColor
-                tabButton.BackgroundColor3 = themeList.SchemeColor
-            end
-        end)()
-    
+        
         function Sections:NewSection(secName, hidden)
             secName = secName or "Section"
-            local sectionFunctions = {}
-            local modules = {}
             hidden = hidden or false
+            
             local sectionFrame = Instance.new("Frame")
             local sectionlistoknvm = Instance.new("UIListLayout")
             local sectionHead = Instance.new("Frame")
@@ -544,15 +499,11 @@ function Kavo.CreateLib(kavName, themeList)
             local sectionInners = Instance.new("Frame")
             local sectionElListing = Instance.new("UIListLayout")
             
-            if hidden then
-                sectionHead.Visible = false
-            else
-                sectionHead.Visible = true
-            end
+            sectionHead.Visible = not hidden
 
             sectionFrame.Name = "sectionFrame"
             sectionFrame.Parent = page
-            sectionFrame.BackgroundColor3 = themeList.Background
+            sectionFrame.BackgroundColor3 = themeList.Background or themes.Background
             sectionFrame.BorderSizePixel = 0
             
             sectionlistoknvm.Name = "sectionlistoknvm"
@@ -560,24 +511,9 @@ function Kavo.CreateLib(kavName, themeList)
             sectionlistoknvm.SortOrder = Enum.SortOrder.LayoutOrder
             sectionlistoknvm.Padding = UDim.new(0, 5)
 
-            for i,v in pairs(sectionInners:GetChildren()) do
-                while wait() do
-                    if v:IsA("Frame") or v:IsA("TextButton") then
-                        function size(pro)
-                            if pro == "Size" then
-                                UpdateSize()
-                                updateSectionFrame()
-                            end
-                        end
-                        v.Changed:Connect(size)
-                    end
-                end
-            end
-            
             sectionHead.Name = "sectionHead"
             sectionHead.Parent = sectionFrame
-            sectionHead.BackgroundColor3 = themeList.SchemeColor
-            Objects[sectionHead] = "BackgroundColor3"
+            sectionHead.BackgroundColor3 = themeList.SchemeColor or themes.SchemeColor
             sectionHead.Size = UDim2.new(0, 352, 0, 33)
 
             sHeadCorner.CornerRadius = UDim.new(0, 4)
@@ -594,17 +530,9 @@ function Kavo.CreateLib(kavName, themeList)
             sectionName.Font = Enum.Font.Gotham
             sectionName.Text = secName
             sectionName.RichText = true
-            sectionName.TextColor3 = themeList.TextColor
-            Objects[sectionName] = "TextColor3"
+            sectionName.TextColor3 = themeList.TextColor or themes.TextColor
             sectionName.TextSize = 14.000
             sectionName.TextXAlignment = Enum.TextXAlignment.Left
-            
-            if themeList.SchemeColor == Color3.fromRGB(255,255,255) then
-                Utility:TweenObject(sectionName, {TextColor3 = Color3.fromRGB(0,0,0)}, 0.2)
-            end 
-            if themeList.SchemeColor == Color3.fromRGB(0,0,0) then
-                Utility:TweenObject(sectionName, {TextColor3 = Color3.fromRGB(255,255,255)}, 0.2)
-            end 
                
             sectionInners.Name = "sectionInners"
             sectionInners.Parent = sectionFrame
@@ -617,27 +545,17 @@ function Kavo.CreateLib(kavName, themeList)
             sectionElListing.SortOrder = Enum.SortOrder.LayoutOrder
             sectionElListing.Padding = UDim.new(0, 3)
 
-            coroutine.wrap(function()
-                while wait() do
-                    sectionFrame.BackgroundColor3 = themeList.Background
-                    sectionHead.BackgroundColor3 = themeList.SchemeColor
-                    tabButton.TextColor3 = themeList.TextColor
-                    tabButton.BackgroundColor3 = themeList.SchemeColor
-                    sectionName.TextColor3 = themeList.TextColor
-                end
-            end)()
-
             local function updateSectionFrame()
                 local innerSc = sectionElListing.AbsoluteContentSize
                 sectionInners.Size = UDim2.new(1, 0, 0, innerSc.Y)
                 local frameSc = sectionlistoknvm.AbsoluteContentSize
                 sectionFrame.Size = UDim2.new(0, 352, 0, frameSc.Y)
+                UpdateSize()
             end
             
             updateSectionFrame()
-            UpdateSize()
-            
-            local Elements = {}
+
+			            local Elements = {}
             function Elements:NewButton(bname,tipINf, callback)
                 showLogo = showLogo or true
                 local ButtonFunction = {}
@@ -2703,8 +2621,11 @@ function Kavo.CreateLib(kavName, themeList)
             end	
             return Elements
         end
+        
         return Sections
-    end  
+    end
+    
     return Tabs
 end
+
 return Kavo
