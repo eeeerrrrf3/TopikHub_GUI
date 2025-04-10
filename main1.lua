@@ -234,6 +234,30 @@ function Kavo.CreateLib(title, theme)
     local tabContainerCorner = Instance.new("UICorner")
     tabContainerCorner.CornerRadius = UDim.new(0, 8)
     tabContainerCorner.Parent = TabContainer
+
+    function Elements:NewSlider(sliderText, minValue, maxValue, defaultValue, callback)
+    sliderText = sliderText or "Slider"
+    minValue = minValue or 0
+    maxValue = maxValue or 100
+    defaultValue = defaultValue or minValue
+    callback = callback or function() end
+    
+    local sliderElement = Instance.new("Frame")
+    sliderElement.Name = "SliderElement"
+    sliderElement.Parent = parent
+    sliderElement.BackgroundTransparency = 1
+    sliderElement.Size = UDim2.new(1, 0, 0, 50)
+    
+    -- Добавьте здесь реализацию слайдера
+    
+    local sliderFunctions = {}
+    
+    function sliderFunctions:SetValue(value)
+        -- Реализация установки значения
+    end
+    
+    return sliderFunctions
+end
     
     -- Tab list
     local TabList = Instance.new("ScrollingFrame")
