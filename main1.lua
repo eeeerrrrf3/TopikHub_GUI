@@ -15,7 +15,7 @@ local Objects = {}
 local function createLogo()
     local logo = Instance.new("ImageLabel")
     logo.Name = "KavoLogo"
-    logo.Image = "http://www.roblox.com/asset/?id=10556918769"
+    logo.Image = "http://www.roblox.com/asset/?id=88824350044835"
     logo.BackgroundTransparency = 1
     logo.Size = UDim2.new(0, 300, 0, 300)
     logo.Position = UDim2.new(0.5, -150, 0.5, -150)
