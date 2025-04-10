@@ -1,70 +1,17 @@
-
 local Kavo = {}
 
 local tween = game:GetService("TweenService")
 local tweeninfo = TweenInfo.new
-local input = game:GetService("User InputService")
+local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
-local players = game:GetService("Players")
-local plr = players.LocalPlayer
 
 local Utility = {}
 local Objects = {}
-
--- Функция для создания логотипа
-local function createLogo()
-    local logo = Instance.new("ImageLabel")
-    logo.Name = "KavoLogo"
-    logo.Image = "http://www.roblox.com/asset/?id=88824350044835"
-    logo.BackgroundTransparency = 1
-    logo.Size = UDim2.new(0, 300, 0, 300)
-    logo.Position = UDim2.new(0.5, -150, 0.5, -150)
-    logo.AnchorPoint = Vector2.new(0.5, 0.5)
-    logo.ZIndex = 9999
-    
-    -- Добавляем в CoreGui
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "LogoGui"
-    screenGui.Parent = game:GetService("CoreGui")
-    screenGui.ResetOnSpawn = false
-    logo.Parent = screenGui
-    
-    return logo, screenGui
-end
-
--- Функция для показа/скрытия логотипа с анимацией
-local function showLogo(callback)
-    local logo, screenGui = createLogo()
-    
-    -- Начальное состояние (прозрачное)
-    logo.ImageTransparency = 1
-    
-    -- Анимация появления
-    local showTween = tween:Create(logo, tweeninfo(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        ImageTransparency = 0
-    })
-    
-    -- Анимация исчезновения
-    local hideTween = tween:Create(logo, tweeninfo(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-        ImageTransparency = 1
-    })
-    
-    -- Запускаем анимации
-    showTween:Play()
-    
-    -- Ждем 3 секунды, затем скрываем
-    wait(3)
-    
-    hideTween:Play()
-    hideTween.Completed:Connect(function()
-        screenGui:Destroy()
-        if callback then callback() end
-    end)
-end
-
 function Kavo:DraggingEnabled(frame, parent)
+        
     parent = parent or frame
     
+    -- Тут начинается приступ говнокода 5 степени :)
     local dragging = false
     local dragInput, mousePos, framePos
 
@@ -91,7 +38,7 @@ function Kavo:DraggingEnabled(frame, parent)
     input.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - mousePos
-            parent.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+            parent.Position  = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
         end
     end)
 end
@@ -100,89 +47,142 @@ function Utility:TweenObject(obj, properties, duration, ...)
     tween:Create(obj, tweeninfo(duration, ...), properties):Play()
 end
 
--- Определение тем
+-- Я не парился с цветами , просто если вам лень делать свою тему , то можете взяь готовую
 local themes = {
     SchemeColor = Color3.fromRGB(74, 99, 135),
     Background = Color3.fromRGB(36, 37, 43),
     Header = Color3.fromRGB(28, 29, 34),
-    TextColor = Color3.fromRGB(255, 255, 255),
+    TextColor = Color3.fromRGB(255,255,255),
     ElementColor = Color3.fromRGB(32, 32, 38)
 }
-
 local themeStyles = {
     RJTheme1 = {
-        SchemeColor = Color3.fromRGB(112, 112, 112),
-        Background = Color3.fromRGB(15, 15, 15),
-        Header = Color3.fromRGB(15, 15, 15),
-        TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(20, 20, 20)
+	-- Цвет фона у Секций
+    SchemeColor = Color3.fromRGB(112, 112, 112),
+	-- Цвет фона в правой части UI
+	Background = Color3.fromRGB(15,15,15),
+	-- Цвет фона в левой части UI
+    Header = Color3.fromRGB(15,15,15),
+	-- Цвет текста
+    TextColor = Color3.fromRGB(255,255,255),
+	-- Цвет фона у кнопок
+    ElementColor = Color3.fromRGB(20, 20, 20)
     },
     RJTheme2 = {
-        SchemeColor = Color3.fromRGB(139, 123, 139),
-        Background = Color3.fromRGB(15, 15, 15),
-        Header = Color3.fromRGB(15, 15, 15),
-        TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(20, 20, 20)
+    -- Цвет фона у Секций
+    SchemeColor = Color3.fromRGB(139,123,139),
+	-- Цвет фона в правой части UI
+	Background = Color3.fromRGB(15,15,15),
+	-- Цвет фона в левой части UI
+    Header = Color3.fromRGB(15,15,15),
+	-- Цвет текста
+    TextColor = Color3.fromRGB(255,255,255),
+	-- Цвет фона у кнопок
+    ElementColor = Color3.fromRGB(20, 20, 20)
     },
     RJTheme3 = {
-        SchemeColor = Color3.fromRGB(91, 94, 176),
-        Background = Color3.fromRGB(15, 15, 15),
-        Header = Color3.fromRGB(15, 15, 15),
-        TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(20, 20, 20)
+	-- Цвет фона у Секций
+    SchemeColor = Color3.fromRGB(91, 94, 176),
+	-- Цвет фона в правой части UI
+	Background = Color3.fromRGB(15,15,15),
+	-- Цвет фона в левой части UI
+    Header = Color3.fromRGB(15,15,15),
+	-- Цвет текста
+    TextColor = Color3.fromRGB(255,255,255),
+	-- Цвет фона у кнопок
+    ElementColor = Color3.fromRGB(20, 20, 20)
+    },
+    RJTheme3 = {
+	-- Цвет фона у Секций
+    SchemeColor = Color3.fromRGB(98, 77, 128),
+	-- Цвет фона в правой части UI
+	Background = Color3.fromRGB(15,15,15),
+	-- Цвет фона в левой части UI
+    Header = Color3.fromRGB(15,15,15),
+	-- Цвет текста
+    TextColor = Color3.fromRGB(255,255,255),
+	-- Цвет фона у кнопок
+    ElementColor = Color3.fromRGB(20, 20, 20)
     },
     RJTheme4 = {
-        SchemeColor = Color3.fromRGB(128, 77, 112),
-        Background = Color3.fromRGB(15, 15, 15),
-        Header = Color3.fromRGB(15, 15, 15),
-        TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(20, 20, 20)
+	-- Цвет фона у Секций
+    SchemeColor = Color3.fromRGB(128, 77, 112),
+	-- Цвет фона в правой части UI
+	Background = Color3.fromRGB(15,15,15),
+	-- Цвет фона в левой части UI
+    Header = Color3.fromRGB(15,15,15),
+	-- Цвет текста
+    TextColor = Color3.fromRGB(255,255,255),
+	-- Цвет фона у кнопок
+    ElementColor = Color3.fromRGB(20, 20, 20)
     },
     RJTheme5 = {
-        SchemeColor = Color3.fromRGB(150, 141, 71),
-        Background = Color3.fromRGB(15, 15, 15),
-        Header = Color3.fromRGB(15, 15, 15),
-        TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(20, 20, 20)
+	-- Цвет фона у Секций
+    SchemeColor = Color3.fromRGB(150, 141, 71),
+	-- Цвет фона в правой части UI
+	Background = Color3.fromRGB(15,15,15),
+	-- Цвет фона в левой части UI
+    Header = Color3.fromRGB(15,15,15),
+	-- Цвет текста
+    TextColor = Color3.fromRGB(255,255,255),
+	-- Цвет фона у кнопок
+    ElementColor = Color3.fromRGB(20, 20, 20)
     },
     RJTheme6 = {
-        SchemeColor = Color3.fromRGB(86, 128, 61),
-        Background = Color3.fromRGB(15, 15, 15),
-        Header = Color3.fromRGB(15, 15, 15),
-        TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(20, 20, 20)
+        	-- Цвет фона у Секций
+    SchemeColor = Color3.fromRGB(86, 128, 61),
+	-- Цвет фона в правой части UI
+	Background = Color3.fromRGB(15,15,15),
+	-- Цвет фона в левой части UI
+    Header = Color3.fromRGB(15,15,15),
+	-- Цвет текста
+    TextColor = Color3.fromRGB(255,255,255),
+	-- Цвет фона у кнопок
+    ElementColor = Color3.fromRGB(20, 20, 20)
     },
     RJTheme7 = {
-        SchemeColor = Color3.fromRGB(95, 81, 168),
-        Background = Color3.fromRGB(15, 15, 15),
-        Header = Color3.fromRGB(15, 15, 15),
-        TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(20, 20, 20)
+	-- Цвет фона у Секций
+    SchemeColor = Color3.fromRGB(95, 81, 168),
+	-- Цвет фона в правой части UI
+	Background = Color3.fromRGB(15,15,15),
+	-- Цвет фона в левой части UI
+    Header = Color3.fromRGB(15,15,15),
+	-- Цвет текста
+    TextColor = Color3.fromRGB(255,255,255),
+	-- Цвет фона у кнопок
+    ElementColor = Color3.fromRGB(20, 20, 20)
     },
     RJTheme8 = {
-        SchemeColor = Color3.fromRGB(150, 72, 148),
-        Background = Color3.fromRGB(15, 15, 15),
-        Header = Color3.fromRGB(15, 15, 15),
-        TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(20, 20, 20)
+    -- Цвет фона у Секций
+    SchemeColor = Color3.fromRGB(150, 72, 148),
+	-- Цвет фона в правой части UI
+	Background = Color3.fromRGB(15,15,15),
+	-- Цвет фона в левой части UI
+    Header = Color3.fromRGB(15,15,15),
+	-- Цвет текста
+    TextColor = Color3.fromRGB(255,255,255),
+	-- Цвет фона у кнопок
+    ElementColor = Color3.fromRGB(20, 20, 20)
     }
 }
-
 local oldTheme = ""
 
-local SettingsT = {}
+local SettingsT = {
+
+}
 
 local Name = "KavoConfig.JSON"
 
 pcall(function()
-    if not pcall(function() readfile(Name) end) then
-        writefile(Name, game:service'HttpService':JSONEncode(SettingsT))
-    end
 
-    Settings = game:service'HttpService':JSONEncode(readfile(Name))
+if not pcall(function() readfile(Name) end) then
+writefile(Name, game:service'HttpService':JSONEncode(SettingsT))
+end
+
+Settings = game:service'HttpService':JSONEncode(readfile(Name))
 end)
 
-local LibName = tostring(math.random(1, 100))..tostring(math.random(1, 50))..tostring(math.random(1, 100))
+local LibName = tostring(math.random(1, 100))..tostring(math.random(1,50))..tostring(math.random(1, 100))
 
 function Kavo:ToggleUI()
     if game.CoreGui[LibName].Enabled then
@@ -193,49 +193,51 @@ function Kavo:ToggleUI()
 end
 
 function Kavo.CreateLib(kavName, themeList)
-    -- Показываем логотип перед созданием интерфейса
-    showLogo(function()
-        -- Основной код создания интерфейса
-        if not themeList then
-            themeList = themes
+    if not themeList then
+        themeList = themes
+    end
+    if themeList == "RJTheme1" then
+        themeList = themeStyles.RJTheme1
+    elseif themeList == "RJTheme2" then
+        themeList = themeStyles.RJTheme2
+    elseif themeList == "RJTheme3" then
+        themeList = themeStyles.RJTheme3
+    elseif themeList == "RJTheme3" then
+        themeList = themeStyles.RJTheme3
+    elseif themeList == "RJTheme4" then
+        themeList = themeStyles.RJTheme4
+    elseif themeList == "RJTheme5" then
+        themeList = themeStyles.RJTheme5
+    elseif themeList == "RJTheme6" then
+        themeList = themeStyles.RJTheme6
+    elseif themeList == "RJTheme7" then
+        themeList = themeStyles.RJTheme7
+    elseif themeList == "RJTheme8" then
+        themeList = themeStyles.RJTheme8
+    else
+        if themeList.SchemeColor == nil then
+            themeList.SchemeColor = Color3.fromRGB(74, 99, 135)
+        elseif themeList.Background == nil then
+            themeList.Background = Color3.fromRGB(36, 37, 43)
+        elseif themeList.Header == nil then
+            themeList.Header = Color3.fromRGB(28, 29, 34)
+        elseif themeList.TextColor == nil then
+            themeList.TextColor = Color3.fromRGB(255,255,255)
+        elseif themeList.ElementColor == nil then
+            themeList.ElementColor = Color3.fromRGB(32, 32, 38)
         end
-        if themeList == "RJTheme1" then
-            themeList = themeStyles.RJTheme1
-        elseif themeList == "RJTheme2" then
-            themeList = themeStyles.RJTheme2
-        elseif themeList == "RJTheme3" then
-            themeList = themeStyles.RJTheme3
-        elseif themeList == "RJTheme4" then
-            themeList = themeStyles.RJTheme4
-        elseif themeList == "RJTheme5" then
-            themeList = themeStyles.RJTheme5
-        elseif themeList == "RJTheme6" then
-            themeList = themeStyles.RJTheme6
-        elseif themeList == "RJTheme7" then
-            themeList = themeStyles.RJTheme7
-        elseif themeList == "RJTheme8" then
-            themeList = themeStyles.RJTheme8
-        else
-            if themeList.SchemeColor == nil then
-                themeList.SchemeColor = Color3.fromRGB(74, 99, 135)
-            elseif themeList.Background == nil then
-                themeList.Background = Color3.fromRGB(36, 37, 43)
-            elseif themeList.Header == nil then
-                themeList.Header = Color3.fromRGB(28, 29, 34)
-            elseif themeList.TextColor == nil then
-                themeList.TextColor = Color3.fromRGB(255, 255, 255)
-            elseif themeList.ElementColor == nil then
-                themeList.ElementColor = Color3.fromRGB(32, 32, 38)
-            end
+    end
+
+    themeList = themeList or {}
+    local selectedTab 
+    kavName = kavName or "Library"
+    table.insert(Kavo, kavName)
+    for i,v in pairs(game.CoreGui:GetChildren()) do
+        if v:IsA("ScreenGui") and v.Name == kavName then
+            v:Destroy()
         end
-
-        -- Создание основного интерфейса
-        local ScreenGui = Instance.new("ScreenGui")
-        ScreenGui.Parent = game.CoreGui
-        ScreenGui.Name = LibName
-        ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-        ScreenGui.ResetOnSpawn = false
-
+    end
+    local ScreenGui = Instance.new("ScreenGui")
     local Main = Instance.new("Frame")
     local MainCorner = Instance.new("UICorner")
     local MainHeader = Instance.new("Frame")
