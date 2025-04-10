@@ -1,5 +1,6 @@
 local Kavo = {}
 
+-- Подключение необходимых сервисов Roblox
 local tween = game:GetService("TweenService")
 local input = game:GetService("UserInputService")
 local run = game:GetService("RunService")
@@ -7,6 +8,7 @@ local run = game:GetService("RunService")
 local Utility = {}
 local Objects = {}
 
+-- Функция для перетаскивания GUI-окна
 function Kavo:DraggingEnabled(frame, parent)
     parent = parent or frame
     local dragging, dragInput, mousePos, framePos = false, nil, nil, nil
@@ -41,10 +43,12 @@ function Kavo:DraggingEnabled(frame, parent)
     end)
 end
 
+-- Функция анимации изменений свойств объекта
 function Utility:TweenObject(obj, properties, duration, ...)
     tween:Create(obj, TweenInfo.new(duration, ...), properties):Play()
 end
 
+-- Темы оформления GUI
 local themes = {
     Dark = {
         Background = Color3.fromRGB(18, 18, 18),
@@ -62,65 +66,88 @@ local themes = {
     }
 }
 
+function Kavo:ChangeColor(prope, color)
+    if themes.Dark[prope] then
+        themes.Dark[prope] = color
+    end
+end
+
+-- Функция создания вкладок в GUI
+function Kavo:NewTab(tabName)
+    local tab = {}
+    tab.Name = tabName
+    tab.Button = Instance.new("TextButton")
+    tab.Page = Instance.new("ScrollingFrame")
+    
+    tab.Button.Text = tabName
+    tab.Button.BackgroundColor3 = themes.Dark.Accent
+    tab.Button.TextColor3 = themes.Dark.TextColor
+    tab.Button.Parent = script.Parent
+    
+    tab.Page.Size = UDim2.new(1, 0, 1, 0)
+    tab.Page.BackgroundTransparency = 1
+    tab.Page.Parent = script.Parent
+    
+    function tab:NewButton(text, callback)
+        local button = Instance.new("TextButton")
+        button.Text = text
+        button.Size = UDim2.new(1, 0, 0, 30)
+        button.BackgroundColor3 = themes.Dark.ElementColor
+        button.TextColor3 = themes.Dark.TextColor
+        button.Parent = tab.Page
+        button.MouseButton1Click:Connect(callback)
+    end
+    
+    function tab:NewToggle(text, default, callback)
+        local toggle = Instance.new("TextButton")
+        toggle.Text = text
+        toggle.Size = UDim2.new(1, 0, 0, 30)
+        toggle.BackgroundColor3 = themes.Dark.ElementColor
+        toggle.TextColor3 = themes.Dark.TextColor
+        toggle.Parent = tab.Page
+        local state = default
+        toggle.MouseButton1Click:Connect(function()
+            state = not state
+            callback(state)
+        end)
+    end
+    
+    function tab:NewSlider(text, min, max, callback)
+        local slider = Instance.new("TextLabel")
+        slider.Text = text .. " [" .. min .. " - " .. max .. "]"
+        slider.Size = UDim2.new(1, 0, 0, 30)
+        slider.BackgroundColor3 = themes.Dark.ElementColor
+        slider.TextColor3 = themes.Dark.TextColor
+        slider.Parent = tab.Page
+        -- Здесь можно добавить механизм изменения значения
+    end
+    
+    function tab:NewTextBox(text, callback)
+        local textBox = Instance.new("TextBox")
+        textBox.PlaceholderText = text
+        textBox.Size = UDim2.new(1, 0, 0, 30)
+        textBox.BackgroundColor3 = themes.Dark.ElementColor
+        textBox.TextColor3 = themes.Dark.TextColor
+        textBox.Parent = tab.Page
+        textBox.FocusLost:Connect(function()
+            callback(textBox.Text)
+        end)
+    end
+    
+    return tab
+end
+
 local function CreateUI(theme)
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = game.CoreGui
     screenGui.Name = "KavoUI"
-
+    
     local mainFrame = Instance.new("Frame")
     mainFrame.Size = UDim2.new(0, 520, 0, 320)
     mainFrame.Position = UDim2.new(0.35, 0, 0.3, 0)
     mainFrame.BackgroundColor3 = theme.Background
-    mainFrame.BorderSizePixel = 0
     mainFrame.Parent = screenGui
-
-    local uiCorner = Instance.new("UICorner")
-    uiCorner.CornerRadius = UDim.new(0, 12)
-    uiCorner.Parent = mainFrame
-
-    local header = Instance.new("Frame")
-    header.Size = UDim2.new(1, 0, 0, 35)
-    header.BackgroundColor3 = theme.Header
-    header.Parent = mainFrame
-
-    local headerCorner = Instance.new("UICorner")
-    headerCorner.CornerRadius = UDim.new(0, 12)
-    headerCorner.Parent = header
-
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, -40, 1, 0)
-    title.Position = UDim2.new(0, 15, 0, 0)
-    title.Text = "Kavo GUI"
-    title.TextColor3 = theme.TextColor
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 18
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    title.BackgroundTransparency = 1
-    title.Parent = header
-
-    local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0, 35, 1, 0)
-    closeButton.Position = UDim2.new(1, -35, 0, 0)
-    closeButton.BackgroundTransparency = 1
-    closeButton.Text = "✖"
-    closeButton.TextColor3 = theme.TextColor
-    closeButton.Font = Enum.Font.GothamBold
-    closeButton.TextSize = 20
-    closeButton.Parent = header
-    closeButton.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-    end)
-
-    local contentFrame = Instance.new("Frame")
-    contentFrame.Size = UDim2.new(1, 0, 1, -35)
-    contentFrame.Position = UDim2.new(0, 0, 0, 35)
-    contentFrame.BackgroundColor3 = theme.ElementColor
-    contentFrame.Parent = mainFrame
-
-    local contentCorner = Instance.new("UICorner")
-    contentCorner.CornerRadius = UDim.new(0, 10)
-    contentCorner.Parent = contentFrame
-
+    
     return screenGui
 end
 
