@@ -1191,14 +1191,14 @@ function Kavo.CreateLib(kavName, themeList)
                 return ToggleFunction
             end
 
-            -- Функция создания слайдера
-            function Elements:NewSlider(slidInf, slidTip, minvalue, maxvalue, startvalue, callback)
-                slidInf = slidInf or "Slider"
-                slidTip = slidTip or "Adjust value"
-                minvalue = minvalue or 0
-                maxvalue = maxvalue or 100
-                startvalue = startvalue or minvalue
-                callback = callback or function() end
+-- Функция создания слайдера
+function Elements:NewSlider(slidInf, slidTip, minvalue, maxvalue, startvalue, callback)
+    slidInf = slidInf or "Slider"
+    slidTip = slidTip or "Adjust value"
+    minvalue = minvalue or 0
+    maxvalue = maxvalue or 100
+    startvalue = startvalue or minvalue
+    callback = callback or function() end
                 
                 local sliderElement = Instance.new("TextButton")
                 local UICorner = Instance.new("UICorner")
@@ -1335,14 +1335,19 @@ function Kavo.CreateLib(kavName, themeList)
                 local sliding = false
                 local hovering = false
                 
-                -- Установка начального значения
-                local function setValue(value)
-                    value = math.clamp(value, minvalue, maxvalue)
-                    local percent = (value - minvalue) / (maxvalue - minvalue)
-                    sliderThumb.Position = UDim2.new(percent, -5, 0, 0)
-                    sliderValue.Text = tostring(math.floor(value))
-                    callback(value)
-                end
+    -- Исправленная функция setValue
+    local function setValue(value)
+        -- Убедимся, что value является числом
+        if type(value) == "function" then
+            value = value() -- Если value это функция, вызываем её
+        end
+        value = tonumber(value) or minvalue -- Если value не число, используем minvalue
+        value = math.clamp(value, minvalue, maxvalue)
+        local percent = (value - minvalue) / (maxvalue - minvalue)
+        sliderThumb.Position = UDim2.new(percent, -5, 0, 0)
+        sliderValue.Text = tostring(math.floor(value))
+        callback(value)
+    end
                 
                 setValue(startvalue)
                 
