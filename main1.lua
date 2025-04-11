@@ -2,7 +2,7 @@ local Kavo = {}
 
 --[[
 ===============
-SERVICE IMPORTS
+СЕРВИСЫ
 ===============
 ]]
 local TweenService = game:GetService("TweenService")
@@ -13,13 +13,13 @@ local Players = game:GetService("Players")
 
 --[[
 ============
-UTILITIES
+УТИЛИТЫ
 ============
 ]]
 local Utility = {}
 local Objects = {}
 
--- Core UI manipulation functions
+-- Функция перетаскивания окон
 function Kavo:DraggingEnabled(frame, parent)
     parent = parent or frame
     
@@ -57,13 +57,14 @@ function Kavo:DraggingEnabled(frame, parent)
     end)
 end
 
+-- Анимация объектов
 function Utility:TweenObject(obj, properties, duration, ...)
     TweenService:Create(obj, TweenInfo.new(duration, ...), properties):Play()
 end
 
 --[[
 ============
-THEMES
+ТЕМЫ
 ============
 ]]
 local themes = {
@@ -87,7 +88,7 @@ local themes = {
 
 --[[
 ============
-CORE UI COMPONENTS
+ОСНОВНЫЕ КОМПОНЕНТЫ UI
 ============
 ]]
 local function CreateBaseUI(title, theme)
@@ -157,7 +158,7 @@ local function CreateBaseUI(title, theme)
     PageContainer.Size = UDim2.new(1, -150, 1, -40)
     PageContainer.Position = UDim2.new(0, 150, 0, 40)
     
-    -- Assemble hierarchy
+    -- Сборка иерархии
     Header.Parent = MainFrame
     Title.Parent = Header
     CloseButton.Parent = Header
@@ -178,7 +179,7 @@ end
 
 --[[
 ============
-TAB SYSTEM
+СИСТЕМА ВКЛАДОК
 ============
 ]]
 local function CreateTab(uiComponents, tabName)
@@ -236,7 +237,7 @@ local function CreateTab(uiComponents, tabName)
     
     --[[
     ============
-    SECTION SYSTEM
+    СИСТЕМА СЕКЦИЙ
     ============
     ]]
     local function CreateSection(sectionName)
@@ -275,14 +276,15 @@ local function CreateTab(uiComponents, tabName)
         
         --[[
         ============
-        UI ELEMENTS
+        ЭЛЕМЕНТЫ УПРАВЛЕНИЯ
         ============
         ]]
         local Elements = {}
         
         --[[
-        BASIC CONTROLS
+        БАЗОВЫЕ ЭЛЕМЕНТЫ
         ]]
+        -- Кнопка
         function Elements:NewButton(buttonName, callback)
             local Button = Instance.new("TextButton")
             Button.Name = buttonName .. "Button"
@@ -329,8 +331,9 @@ local function CreateTab(uiComponents, tabName)
         end
         
         --[[
-        INPUT CONTROLS
+        ЭЛЕМЕНТЫ ВВОДА
         ]]
+        -- Текстовое поле
         function Elements:NewTextBox(textBoxName, placeholder, callback)
             local TextBoxContainer = Instance.new("Frame")
             TextBoxContainer.Name = textBoxName .. "Container"
@@ -370,7 +373,7 @@ local function CreateTab(uiComponents, tabName)
         end
         
         --[[
-        TOGGLE CONTROLS
+        ПЕРЕКЛЮЧАТЕЛИ
         ]]
         function Elements:NewToggle(toggleName, defaultValue, callback)
             local Toggle = Instance.new("TextButton")
@@ -433,32 +436,37 @@ local function CreateTab(uiComponents, tabName)
         end
         
         --[[
-        VALUE CONTROLS
+        ЭЛЕМЕНТЫ ВЫБОРА ЗНАЧЕНИЙ
         ]]
+        -- Слайдер
         function Elements:NewSlider(sliderName, minValue, maxValue, defaultValue, callback)
-            -- Implementation would go here
+            -- Реализация слайдера
         end
         
+        -- Выпадающий список
         function Elements:NewDropdown(dropdownName, options, defaultOption, callback)
-            -- Implementation would go here
+            -- Реализация выпадающего списка
         end
         
         --[[
-        SPECIAL CONTROLS
+        СПЕЦИАЛЬНЫЕ ЭЛЕМЕНТЫ
         ]]
+        -- Выбор цвета
         function Elements:NewColorPicker(colorPickerName, defaultColor, callback)
-            -- Implementation would go here
+            -- Реализация выбора цвета
         end
         
+        -- Горячая клавиша
         function Elements:NewKeybind(keybindName, defaultKey, callback)
-            -- Implementation would go here
+            -- Реализация горячей клавиши
         end
         
         --[[
-        DISPLAY ELEMENTS
+        ИНФОРМАЦИОННЫЕ ЭЛЕМЕНТЫ
         ]]
+        -- Метка
         function Elements:NewLabel(labelText)
-            -- Implementation would go here
+            -- Реализация текстовой метки
         end
         
         return Elements
@@ -471,14 +479,14 @@ end
 
 --[[
 ============
-LIBRARY ENTRY POINT
+ОСНОВНАЯ ФУНКЦИЯ БИБЛИОТЕКИ
 ============
 ]]
 function Kavo.CreateLib(title, themeName)
     local theme = themes[themeName] or themes.Dark
     local uiComponents = CreateBaseUI(title, theme)
     
-    -- Parent to CoreGui at the end
+    -- Помещаем интерфейс в CoreGui
     uiComponents.ScreenGui.Parent = game.CoreGui
     
     local LibraryFunctions = {}
@@ -493,7 +501,7 @@ function Kavo.CreateLib(title, themeName)
     
     function LibraryFunctions:SetTheme(newTheme)
         theme = themes[newTheme] or theme
-        -- Theme update logic would go here
+        -- Логика обновления темы
     end
     
     return LibraryFunctions
