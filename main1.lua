@@ -240,39 +240,44 @@ local function CreateTab(uiComponents, tabName)
     СИСТЕМА СЕКЦИЙ
     ============
     ]]
-    local function CreateSection(sectionName)
-        local Section = Instance.new("Frame")
-        Section.Name = sectionName .. "Section"
-        Section.BackgroundColor3 = uiComponents.Theme.ElementColor
-        Section.Size = UDim2.new(1, -20, 0, 0)
-        Section.AutomaticSize = Enum.AutomaticSize.Y
-        
-        local SectionCorner = Instance.new("UICorner")
-        SectionCorner.CornerRadius = UDim.new(0, 6)
-        SectionCorner.Parent = Section
-        
-        local SectionLayout = Instance.new("UIListLayout")
-        SectionLayout.Padding = UDim.new(0, 5)
-        SectionLayout.Parent = Section
-        
-        local SectionHeader = Instance.new("TextLabel")
-        SectionHeader.Name = "Header"
-        SectionHeader.Text = "  " .. sectionName
-        SectionHeader.Font = Enum.Font.GothamSemibold
-        SectionHeader.TextSize = 16
-        SectionHeader.TextColor3 = uiComponents.Theme.TextColor
-        SectionHeader.BackgroundTransparency = 1
-        SectionHeader.Size = UDim2.new(1, 0, 0, 30)
-        SectionHeader.TextXAlignment = Enum.TextXAlignment.Left
-        
-        SectionHeader.Parent = Section
-        Section.Parent = TabPage
-        
-        local function UpdateSectionSize()
-            Section.Size = UDim2.new(1, -20, 0, SectionLayout.AbsoluteContentSize.Y + 10)
-        end
-        
-        SectionLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateSectionSize)
+local function CreateSection(sectionName)
+    -- Проверяем, что sectionName - строка
+    if type(sectionName) ~= "string" then
+        sectionName = tostring(sectionName) or "Section"
+    end
+    
+    local Section = Instance.new("Frame")
+    Section.Name = sectionName .. "Section"  -- Здесь была возможная ошибка, если sectionName - таблица
+    Section.BackgroundColor3 = uiComponents.Theme.ElementColor
+    Section.Size = UDim2.new(1, -20, 0, 0)
+    Section.AutomaticSize = Enum.AutomaticSize.Y
+    
+    local SectionCorner = Instance.new("UICorner")
+    SectionCorner.CornerRadius = UDim.new(0, 6)
+    SectionCorner.Parent = Section
+    
+    local SectionLayout = Instance.new("UIListLayout")
+    SectionLayout.Padding = UDim.new(0, 5)
+    SectionLayout.Parent = Section
+    
+    local SectionHeader = Instance.new("TextLabel")
+    SectionHeader.Name = "Header"
+    SectionHeader.Text = "  " .. tostring(sectionName)  -- Дополнительная проверка на строку
+    SectionHeader.Font = Enum.Font.GothamSemibold
+    SectionHeader.TextSize = 16
+    SectionHeader.TextColor3 = uiComponents.Theme.TextColor
+    SectionHeader.BackgroundTransparency = 1
+    SectionHeader.Size = UDim2.new(1, 0, 0, 30)
+    SectionHeader.TextXAlignment = Enum.TextXAlignment.Left
+    
+    SectionHeader.Parent = Section
+    Section.Parent = TabPage
+    
+    local function UpdateSectionSize()
+        Section.Size = UDim2.new(1, -20, 0, SectionLayout.AbsoluteContentSize.Y + 10)
+    end
+    
+    SectionLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateSectionSize)
         
         --[[
         ============
